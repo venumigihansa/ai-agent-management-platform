@@ -38,7 +38,7 @@ export function Navbar({ variant = "default" }: NavbarProps) {
           : "sticky top-0 z-50 w-full border-b border-border/40 bg-white/80 backdrop-blur-md"
       }
     >
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="container mx-auto px-4 h-16 flex items-center">
         <Link
           href="/"
           className={
@@ -63,11 +63,11 @@ export function Navbar({ variant = "default" }: NavbarProps) {
                 : "font-display font-bold text-xl text-primary tracking-tight"
             }
           >
-            Travel Planner
+            Hotel Booking Agent
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
+        <div className="flex-1 hidden md:flex items-center justify-center">
           <Link
             href="/"
             className={`text-sm font-medium transition-colors ${
@@ -76,17 +76,9 @@ export function Navbar({ variant = "default" }: NavbarProps) {
           >
             Explore
           </Link>
-          <Link
-            href="/bookings"
-            className={`text-sm font-medium transition-colors ${
-              isThemed ? "hover:text-white" : "hover:text-primary"
-            } ${location === "/bookings" ? (isThemed ? "text-white" : "text-primary") : isThemed ? "text-white/80" : "text-muted-foreground"}`}
-          >
-            My Bookings
-          </Link>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-auto">
           <SignedOut>
             <SignInButton
               className={
@@ -115,9 +107,9 @@ export function Navbar({ variant = "default" }: NavbarProps) {
                   {(displayName || "U").charAt(0).toUpperCase()}
                 </div>
                 <div className="hidden sm:flex flex-col items-start">
-                  <span className={isThemed ? "text-xs text-white/70" : "text-xs text-muted-foreground"}>Welcome back,</span>
+                  <span className={isThemed ? "text-xs text-white/70" : "text-xs text-muted-foreground"}>Welcome back</span>
                   <span className={isThemed ? "text-sm font-semibold text-white" : "text-sm font-semibold text-foreground"}>
-                    {isLoading ? "..." : displayName || "there"}
+                    {isLoading ? "..." : displayName || ""}
                   </span>
                 </div>
               </div>

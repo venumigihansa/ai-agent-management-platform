@@ -88,8 +88,7 @@ const parseHotelResults = (content: string): HotelResultsPayload | null => {
   return null;
 };
 
-const CHAT_API_URL =
-  process.env.REACT_APP_CHAT_API_URL || "http://localhost:9090/travelPlanner/chat";
+const CHAT_API_URL = "http://localhost:9090/chat";
 const CHAT_SESSIONS_URL = `${CHAT_API_URL}/sessions`;
 const USER_ID_STORAGE_KEY = "travelPlannerUserId";
 const SESSION_STORAGE_KEY = "travelPlannerSessions";
@@ -298,15 +297,6 @@ export default function Home() {
         body: JSON.stringify({
           message: query,
           sessionId: activeSession.sessionId,
-          userId: effectiveUserId,
-          userName:
-            user?.name ||
-            user?.displayName ||
-            user?.given_name ||
-            user?.preferred_username ||
-            user?.username ||
-            user?.email ||
-            undefined,
         }),
       });
 
@@ -326,7 +316,7 @@ export default function Home() {
           ? {
               ...s,
               messages: [...s.messages, assistantMessage],
-              title: s.title.startsWith('New Trip') ? query.slice(0, 20) + '...' : s.title
+              title: s.title.startsWith('New Trip') ? query.slice(0, 20) : s.title
             }
           : s
       ));
@@ -376,14 +366,15 @@ export default function Home() {
             <button
               key={s.id}
               onClick={() => setActiveSessionId(s.id)}
-              className={`tp-chat-session-button ${
+              className={`tp-chat-session-button flex ${
                 activeSessionId === s.id 
                 ? 'tp-chat-session-button--active' 
                 : 'tp-chat-session-button--idle'
               }`}
             >
               <MessageSquare className="w-5 h-5 shrink-0" />
-              <span className="truncate text-sm">{s.title}</span>
+              <span className="flex-1 min-w-0 truncate text-sm">{s.title}</span>
+
               <span className="tp-chat-session-spacer" />
               <span
                 role="button"
@@ -432,7 +423,7 @@ export default function Home() {
                   <span className="tp-chat-title-icon">
                     <Globe className="w-4 h-4" />
                   </span>
-                  <span className="tp-chat-title-text">Travel Planner</span>
+                  <span className="tp-chat-title-text">Hotel Booking Agent</span>
                 </div>
               </div>
               <div className="tp-chat-header-actions" />

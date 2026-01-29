@@ -11,7 +11,7 @@ export default function SignIn() {
           </div>
           <div>
             <h1 className="font-display text-2xl font-bold text-foreground">
-              Travel Planner
+              Hotel Booking Agent
             </h1>
             <p className="text-sm text-muted-foreground">
               Sign in to unlock your AI trip assistant
@@ -27,7 +27,7 @@ export default function SignIn() {
             Create an Account
           </SignUpButton>
           <p className="text-xs text-muted-foreground">
-            We use Asgardeo to keep your trips and bookings secure.
+            We use Asgardeo to keep your account secure.
           </p>
         </div>
       </div>
