@@ -1,0 +1,31 @@
+[
+  {
+    "bookingId": "BK42788303",
+    "hotelId": "mock-001-paris",
+    "hotelName": "Azure Bay Resort Paris",
+    "rooms": [
+      {
+        "roomId": "mock-001-paris_BookingCom_1",
+        "numberOfRooms": 1,
+        "pricePerNight": 371.88
+      }
+    ],
+    "userId": "user_123",
+    "checkInDate": "2026-02-10",
+    "checkOutDate": "2026-02-12",
+    "numberOfGuests": 2,
+    "primaryGuest": {
+      "firstName": "Ava",
+      "lastName": "Lee",
+      "email": "ava@example.com",
+      "phoneNumber": "+1234567890"
+    },
+    "pricing": [],
+    "bookingStatus": "CONFIRMED",
+    "bookingDate": "2026-01-30T08:45:05.788291+00:00",
+    "confirmationNumber": "CONF92c9a294-d121-4c12-8406-61f812084368",
+    "specialRequests": {
+      "otherRequests": "Late check-in"
+    }
+  }
+]

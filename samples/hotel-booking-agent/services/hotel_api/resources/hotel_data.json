@@ -578,7 +578,7 @@
       "roomType": "Junior Suite",
       "roomName": "Official Site Rate",
       "description": "Rate via PreferredHotels1",
-      "maxOccupancy": 2,
+      "maxOccupancy": 3,
       "pricePerNight": 184.69,
       "amenities": [
         "Flat-screen TV",
@@ -604,7 +604,7 @@
       "roomType": "Deluxe Room",
       "roomName": "Trip.com Rate",
       "description": "Rate via Trip.com",
-      "maxOccupancy": 2,
+      "maxOccupancy": 4,
       "pricePerNight": 294.13,
       "amenities": [
         "Safe",
@@ -659,7 +659,7 @@
       "roomType": "Junior Suite",
       "roomName": "Vio.com Rate",
       "description": "Rate via Vio",
-      "maxOccupancy": 2,
+      "maxOccupancy": 3,
       "pricePerNight": 381.87,
       "amenities": [
         "Balcony",
@@ -688,7 +688,7 @@
       "roomType": "Junior Suite",
       "roomName": "Trip.com Rate",
       "description": "Rate via Trip.com",
-      "maxOccupancy": 2,
+      "maxOccupancy": 4,
       "pricePerNight": 369.34,
       "amenities": [
         "Work Desk",
@@ -740,7 +740,7 @@
       "roomType": "Junior Suite",
       "roomName": "Expedia Rate",
       "description": "Rate via Expedia",
-      "maxOccupancy": 2,
+      "maxOccupancy": 3,
       "pricePerNight": 244.04,
       "amenities": [
         "Work Desk",
@@ -769,7 +769,7 @@
       "roomType": "Deluxe Room",
       "roomName": "Hotels.com Rate",
       "description": "Rate via Hotels.com",
-      "maxOccupancy": 2,
+      "maxOccupancy": 4,
       "pricePerNight": 733.05,
       "amenities": [
         "Flat-screen TV",
@@ -822,7 +822,7 @@
       "roomType": "Deluxe Room",
       "roomName": "Hotels.com Rate",
       "description": "Rate via Hotels.com",
-      "maxOccupancy": 2,
+      "maxOccupancy": 3,
       "pricePerNight": 169.09,
       "amenities": [
         "Safe",
@@ -849,7 +849,7 @@
       "roomType": "Deluxe Ocean View Room",
       "roomName": "Booking.com Rate",
       "description": "Rate via Booking.com",
-      "maxOccupancy": 2,
+      "maxOccupancy": 4,
       "pricePerNight": 185.5,
       "amenities": [
         "Ocean View",
@@ -906,7 +906,7 @@
       "roomType": "Superior Room",
       "roomName": "Trip.com Rate",
       "description": "Rate via Trip.com",
-      "maxOccupancy": 2,
+      "maxOccupancy": 3,
       "pricePerNight": 155.75,
       "amenities": [
         "City View",
@@ -932,7 +932,7 @@
       "roomType": "Heritage Suite",
       "roomName": "Booking.com Rate",
       "description": "Rate via Booking.com",
-      "maxOccupancy": 2,
+      "maxOccupancy": 4,
       "pricePerNight": 145.0,
       "amenities": [
         "Fort Views",
@@ -987,7 +987,7 @@
       "roomType": "Standard Room",
       "roomName": "Expedia Rate",
       "description": "Rate via Expedia",
-      "maxOccupancy": 2,
+      "maxOccupancy": 3,
       "pricePerNight": 105.0,
       "amenities": [
         "Air Conditioning",

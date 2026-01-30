@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, Optional
 import json
 
 import requests
@@ -170,8 +170,8 @@ def build_tools(settings: Settings):
     @tool
     def query_hotel_policy_tool(
         question: str,
-        hotel_id: str | None = None,
-        hotel_name: str | None = None,
+        hotel_id: Optional[str],
+        hotel_name: Optional[str],
     ) -> str:
         """Retrieve hotel policy details from Pinecone."""
         resolved_id = _resolve_hotel_id(hotel_id, hotel_name)
