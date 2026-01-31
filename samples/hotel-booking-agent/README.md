@@ -1,10 +1,9 @@
 # Hotel Booking Agent
 
-Minimal Python stack for the travel planner agent, plus optional frontend.
+Minimal Python stack for the travel planner agent.
 
 - **AI Agent**: `samples/hotel-booking-agent/agent/`
 - **Hotel API**: `samples/hotel-booking-agent/services/hotel_api/`
-- **Frontend (optional)**: `samples/hotel-booking-agent/frontend/`
 - **Policy ingest**: `samples/hotel-booking-agent/services/hotel_api/resources/ingest/`
 - **Sample policy PDFs**: `samples/hotel-booking-agent/services/hotel_api/resources/policy_pdfs/`
 
