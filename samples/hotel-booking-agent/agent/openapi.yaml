@@ -16,8 +16,6 @@ paths:
       summary: Send Message to Agent
       description: Send a chat message to the AI agent and receive travel recommendations, itineraries, or answers to travel-related questions
       operationId: chat_chat_post
-      security:
-        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -29,11 +27,15 @@ paths:
                 summary: Simple travel query
                 value:
                   message: "Plan a 5-day trip to Tokyo"
+                  userId: "user_123"
+                  userName: "Traveler"
               with_session:
                 summary: Continuing conversation
                 value:
                   message: "What about hotels near Shibuya?"
                   sessionId: "session_abc123"
+                  userId: "user_123"
+                  userName: "Traveler"
       responses:
         '200':
           description: Successfully processed the message and generated a response
@@ -56,12 +58,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HTTPValidationError"
-        '401':
-          description: Unauthorized - missing or invalid access token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
         '500':
           description: Internal server error
           content:
@@ -74,16 +70,12 @@ paths:
                     example: "An unexpected error occurred"
 
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
   schemas:
     ChatRequest:
       type: object
       required:
         - message
+        - userId
       properties:
         message:
           type: string
@@ -98,6 +90,19 @@ components:
           title: SessionId
           description: Optional session identifier for maintaining conversation context
           example: "session_abc123"
+        userId:
+          type: string
+          title: UserId
+          description: The user's unique identifier for this chat session
+          example: "user_123"
+          minLength: 1
+        userName:
+          anyOf:
+            - type: string
+            - type: null
+          title: UserName
+          description: Optional display name for the user
+          example: "Traveler"
       title: ChatRequest
 
     ChatResponse:
@@ -111,14 +116,6 @@ components:
           description: The AI agent's response with travel recommendations or information
           example: "Here's a suggested 5-day Tokyo itinerary: Day 1: Visit Senso-ji Temple and explore Asakusa..."
       title: ChatResponse
-
-    ErrorResponse:
-      type: object
-      properties:
-        detail:
-          type: string
-          example: "Invalid access token."
-      title: ErrorResponse
 
     HTTPValidationError:
       type: object

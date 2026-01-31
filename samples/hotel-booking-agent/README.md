@@ -1,12 +1,12 @@
 # Hotel Booking Agent
 
-Minimal Python + React stack for the travel planner agent.
+Minimal Python stack for the travel planner agent, plus optional frontend.
 
-- **AI Agent**: `backend/agent/`
-- **Booking API**: `backend/booking_api/`
-- **Frontend**: `frontend/`
-- **Policy ingest**: `resources/ingest/`
-- **Sample policy PDFs**: `resources/policy_pdfs/`
+- **AI Agent**: `samples/hotel-booking-agent/agent/`
+- **Hotel API**: `samples/hotel-booking-agent/services/hotel_api/`
+- **Frontend (optional)**: `samples/hotel-booking-agent/frontend/`
+- **Policy ingest**: `samples/hotel-booking-agent/services/hotel_api/resources/ingest/`
+- **Sample policy PDFs**: `samples/hotel-booking-agent/services/hotel_api/resources/policy_pdfs/`
 
 ## Quick Start
 
@@ -43,45 +43,39 @@ Run this inside the WSO2-AMP dev container to expose the agent on `localhost:909
 kubectl -n dp-default-default-default-ccb66d74 port-forward svc/travel-planner-agent-is 9090:80
 ```
 
-**Booking API**
+**Hotel API**
 - Runs locally on `http://localhost:9091` when started via `uvicorn`.
 - You can also deploy it to a cloud host; just point the agent configuration at the deployed base URL.
 
-**Pinecone policies (required)**
+**Pinecone policies**
 - Create a Pinecone index using your preferred embedding model.
-- Set the Pinecone and embedding configuration in `resources/ingest/.env`.
+- Set the Pinecone and embedding configurations when deploying or locally running the hotel api 
 - Run the ingest to populate the index.
 
-### Local services (Booking API + Frontend)
-#### 1) Start the booking API (local)
+### Local services (Agent + Hotel API)
+#### 1) Start the agent (local)
 ```bash
-cd backend/booking_api
+cd samples/hotel-booking-agent/agent
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn booking_api:app --host 0.0.0.0 --port 9091
+uvicorn app:app --host 0.0.0.0 --port 9090
 ```
 
-#### 2) Start the frontend (local)
-The frontend runs on `http://localhost:3000`, then:
-
+#### 2) Start the Hotel API (local)
 ```bash
-cd frontend
-npm install
-npm start
-```
-
-## Seed Pinecone policies (required)
-Populate Pinecone from the sample policies in `resources/policy_pdfs`.
-Make sure you have created a Pinecone index with your preferred embedding model and set these values in `resources/ingest/.env`:
-`PINECONE_SERVICE_URL`, `PINECONE_API_KEY`, `PINECONE_INDEX_NAME`, `OPENAI_API_KEY`, `OPENAI_EMBEDDING_MODEL`, and optional chunk settings.
-
-```bash
-cd resources/ingest
+cd samples/hotel-booking-agent/services/hotel_api
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python ingest.py
+uvicorn service:app --host 0.0.0.0 --port 9091
+```
+
+### Sample chat request
+```bash
+curl -s http://localhost:9090/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Plan a 3-day trip to Tokyo","sessionId":"session_abc123","userId":"user_123","userName":"Traveler"}'
 ```
 
 ## Notes

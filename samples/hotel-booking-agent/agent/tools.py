@@ -30,21 +30,21 @@ class GuestDetails(BaseModel):
     lastName: str = Field(..., description="Primary guest last name.")
     email: str = Field(..., description="Primary guest email address.")
     phoneNumber: str = Field(..., description="Primary guest phone number.")
-    nationality: str | None = Field(None, description="Primary guest nationality, if available.")
+    nationality: Optional[str] = Field(None, description="Primary guest nationality, if available.")
 
 
 class SpecialRequests(BaseModel):
-    dietaryRequirements: str | None = Field(None, description="Dietary requirements, if any.")
-    accessibilityNeeds: str | None = Field(None, description="Accessibility needs, if any.")
-    bedPreference: str | None = Field(None, description="Bed preference, if any.")
+    dietaryRequirements: Optional[str] = Field(None, description="Dietary requirements, if any.")
+    accessibilityNeeds: Optional[str] = Field(None, description="Accessibility needs, if any.")
+    bedPreference: Optional[str] = Field(None, description="Bed preference, if any.")
     petFriendly: bool | None = Field(None, description="Whether the booking should be pet friendly.")
-    otherRequests: str | None = Field(None, description="Other special requests.")
+    otherRequests: Optional[str] = Field(None, description="Other special requests.")
 
 
 class BookingRequest(BaseModel):
     userId: str = Field(..., description="User ID for the booking.")
     hotelId: str = Field(..., description="Hotel ID to book.")
-    hotelName: str | None = Field(None, description="Hotel name, if available.")
+    hotelName: Optional[str] = Field(None, description="Hotel name, if available.")
     rooms: list[RoomConfiguration] = Field(..., description="Room configuration(s) to book.")
     checkInDate: str = Field(..., description="Check-in date in YYYY-MM-DD format.")
     checkOutDate: str = Field(..., description="Check-out date in YYYY-MM-DD format.")
@@ -57,13 +57,13 @@ class BookingRequest(BaseModel):
 
 
 class BookingUpdateRequest(BaseModel):
-    userId: str | None = Field(None, description="User ID for the booking.")
+    userId: Optional[str] = Field(None, description="User ID for the booking.")
     bookingId: str = Field(..., description="Booking ID to update.")
-    hotelId: str | None = Field(None, description="Hotel ID to update.")
-    hotelName: str | None = Field(None, description="Hotel name to update.")
+    hotelId: Optional[str] = Field(None, description="Hotel ID to update.")
+    hotelName: Optional[str] = Field(None, description="Hotel name to update.")
     rooms: list[RoomConfiguration] | None = Field(None, description="Updated room list.")
-    checkInDate: str | None = Field(None, description="Updated check-in date in YYYY-MM-DD format.")
-    checkOutDate: str | None = Field(None, description="Updated check-out date in YYYY-MM-DD format.")
+    checkInDate: Optional[str] = Field(None, description="Updated check-in date in YYYY-MM-DD format.")
+    checkOutDate: Optional[str] = Field(None, description="Updated check-out date in YYYY-MM-DD format.")
     numberOfGuests: int | None = Field(None, description="Updated total number of guests.")
     numberOfRooms: int | None = Field(None, description="Updated total number of rooms.")
     primaryGuest: GuestDetails | None = Field(None, description="Updated primary guest details.")
@@ -71,13 +71,13 @@ class BookingUpdateRequest(BaseModel):
 
 
 class BookingCancelRequest(BaseModel):
-    userId: str | None = Field(None, description="User ID for the booking.")
+    userId: Optional[str] = Field(None, description="User ID for the booking.")
     bookingId: str = Field(..., description="Booking ID to cancel.")
 
 
 class BookingListRequest(BaseModel):
-    userId: str | None = Field(None, description="User ID to list bookings for.")
-    status: str | None = Field(
+    userId: Optional[str] = Field(None, description="User ID to list bookings for.")
+    status: Optional[str] = Field(
         None,
         description="Optional booking status filter: CONFIRMED, CANCELLED, or ALL.",
     )
@@ -107,46 +107,28 @@ def build_tools(settings: Settings):
     def _booking_api_url(path: str) -> str:
         return f"{settings.booking_api_base_url.rstrip('/')}{path}"
 
-    def _call_booking_api(method: str, path: str, *, params: dict[str, Any] | None = None, json_body: dict[str, Any] | None = None) -> dict[str, Any]:
+    def _call_hotel_api(method: str, path: str, *, params: dict[str, Any] | None = None, json_body: dict[str, Any] | None = None) -> dict[str, Any]:
         url = _booking_api_url(path)
         try:
             response = requests.request(method, url, params=params, json=json_body, timeout=30)
             response.raise_for_status()
         except requests.RequestException:
-            logger.exception("Booking API request failed: %s %s", method, url)
-            return {"error": "Booking API request failed."}
+            logger.exception("Hotel API request failed: %s %s", method, url)
+            return {"error": "Hotel API request failed."}
         try:
             payload = response.json()
         except ValueError:
-            return {"error": "Booking API returned non-JSON response."}
+            return {"error": "Hotel API returned non-JSON response."}
         if isinstance(payload, dict) and payload.get("errorCode"):
-            return {"error": payload.get("message") or "Booking API error.", "details": payload}
+            return {"error": payload.get("message") or "Hotel API error.", "details": payload}
         return payload
 
-    def _resolve_hotel_id(hotel_id: str | None, hotel_name: str | None) -> str | None:
-        candidate_name = hotel_name or hotel_id
-        if hotel_id and hotel_id.strip() and " " not in hotel_id:
-            return hotel_id
+    def _resolve_hotel_id(hotel_name: Optional[str]) -> Optional[str]:
+        candidate_name = (hotel_name or "").strip()
         if not candidate_name:
             return None
         logger.info("Resolving hotel id from name: %s", candidate_name)
-        payload = _call_booking_api(
-            "GET",
-            "/hotels/search",
-            params={"destination": candidate_name, "page": 1, "pageSize": 10},
-        )
-        hotels = (payload or {}).get("hotels", []) if isinstance(payload, dict) else []
-        match = next(
-            (
-                hotel
-                for hotel in hotels
-                if candidate_name.lower() in str(hotel.get("hotelName", "")).lower()
-            ),
-            None,
-        )
-        if match:
-            return match.get("hotelId")
-        resolve_payload = _call_booking_api(
+        resolve_payload = _call_hotel_api(
             "GET",
             "/hotels/resolve",
             params={"name": candidate_name},
@@ -157,7 +139,7 @@ def build_tools(settings: Settings):
         return None
 
     @tool
-    def get_user_profile_tool(user_id: str | None = None, user_name: str | None = None) -> dict[str, Any]:
+    def get_user_profile_tool(user_id: Optional[str] = None, user_name: Optional[str] = None) -> dict[str, Any]:
         """Return basic user personalization details from the request."""
         resolved_user_id = user_id
         resolved_user_name = user_name
@@ -174,7 +156,11 @@ def build_tools(settings: Settings):
         hotel_name: Optional[str],
     ) -> str:
         """Retrieve hotel policy details from Pinecone."""
-        resolved_id = _resolve_hotel_id(hotel_id, hotel_name)
+        clean_id = (hotel_id or "").strip()
+        if clean_id and " " not in clean_id:
+            resolved_id = clean_id
+        else:
+            resolved_id = _resolve_hotel_id(hotel_name or hotel_id)
         if resolved_id:
             index = _pinecone_index(settings)
             embedder = _embedder(settings)
@@ -232,9 +218,9 @@ def build_tools(settings: Settings):
 
     @tool
     def search_hotels_tool(
-        check_in_date: str | None = None,
-        check_out_date: str | None = None,
-        destination: str | None = None,
+        check_in_date: Optional[str] = None,
+        check_out_date: Optional[str] = None,
+        destination: Optional[str] = None,
         guests: int = 1,
         max_price: float | None = None,
         min_price: float | None = None,
@@ -242,7 +228,7 @@ def build_tools(settings: Settings):
         page: int = 1,
         page_size: int = 10,
         rooms: int = 1,
-        sort_by: str | None = None,
+        sort_by: Optional[str] = None,
     ) -> dict[str, Any]:
         """Search hotels with filtering options."""
         logger.info(
@@ -267,22 +253,26 @@ def build_tools(settings: Settings):
             "sortBy": sort_by,
         }
         params = {k: v for k, v in params.items() if v is not None}
-        response = _call_booking_api("GET", "/hotels/search", params=params)
+        response = _call_hotel_api("GET", "/hotels/search", params=params)
         if isinstance(response, dict) and response.get("error"):
             return response
         return response
 
     @tool
-    def get_hotel_info_tool(hotel_id: str | None = None, hotel_name: str | None = None) -> dict[str, Any]:
+    def get_hotel_info_tool(hotel_id: Optional[str] = None, hotel_name: Optional[str] = None) -> dict[str, Any]:
         """Retrieve detailed information about a hotel."""
         candidate = hotel_id or hotel_name or ""
         if candidate.lower().startswith("user_"):
             return {"error": "Invalid hotel_id provided. Ask for a hotel name or destination."}
-        resolved_id = _resolve_hotel_id(hotel_id, hotel_name)
+        clean_id = (hotel_id or "").strip()
+        if clean_id and " " not in clean_id:
+            resolved_id = clean_id
+        else:
+            resolved_id = _resolve_hotel_id(hotel_name or hotel_id)
         if not resolved_id:
             return {"error": "Hotel not found. Provide a valid hotel_id or hotel_name."}
         logger.info("get_hotel_info_tool called: hotel_id=%s", resolved_id)
-        response = _call_booking_api("GET", f"/hotels/{resolved_id}")
+        response = _call_hotel_api("GET", f"/hotels/{resolved_id}")
         if isinstance(response, dict) and response.get("error"):
             return response
         return response
@@ -294,15 +284,16 @@ def build_tools(settings: Settings):
         guests: int,
         hotel_id: str,
         room_count: int,
-        hotel_name: str | None = None,
+        hotel_name: Optional[str] = None,
     ) -> dict[str, Any]:
         """Check availability before recommending a hotel."""
-        resolved_id = _resolve_hotel_id(hotel_id, hotel_name)
+        clean_id = (hotel_id or "").strip()
+        if clean_id and " " not in clean_id:
+            resolved_id = clean_id
+        else:
+            resolved_id = _resolve_hotel_id(hotel_name or hotel_id)
         if not resolved_id:
             return {"error": "Hotel not found. Provide a valid hotel_id or hotel_name."}
-        candidate_name = hotel_name
-        if not candidate_name and hotel_id and " " in hotel_id:
-            candidate_name = hotel_id
         logger.info(
             "check_hotel_availability_tool called: hotel_id=%s check_in_date=%s check_out_date=%s guests=%s room_count=%s",
             resolved_id,
@@ -317,7 +308,7 @@ def build_tools(settings: Settings):
             "guests": guests,
             "roomCount": room_count,
         }
-        response = _call_booking_api(
+        response = _call_hotel_api(
             "GET",
             f"/hotels/{resolved_id}/availability",
             params=params,
@@ -337,7 +328,7 @@ def build_tools(settings: Settings):
         numberOfRooms: int,
         primaryGuest: GuestDetails,
         specialRequests: SpecialRequests | None = None,
-        hotelName: str | None = None,
+        hotelName: Optional[str] = None,
     ) -> dict[str, Any]:
         """Create a booking via the booking API."""
         resolved_user_id = userId
@@ -372,13 +363,13 @@ def build_tools(settings: Settings):
 
     @tool(args_schema=BookingUpdateRequest)
     def edit_booking_tool(
-        userId: str | None,
+        userId: Optional[str],
         bookingId: str,
-        hotelId: str | None = None,
-        hotelName: str | None = None,
+        hotelId: Optional[str] = None,
+        hotelName: Optional[str] = None,
         rooms: list[RoomConfiguration] | None = None,
-        checkInDate: str | None = None,
-        checkOutDate: str | None = None,
+        checkInDate: Optional[str] = None,
+        checkOutDate: Optional[str] = None,
         numberOfGuests: int | None = None,
         numberOfRooms: int | None = None,
         primaryGuest: GuestDetails | None = None,
@@ -419,7 +410,7 @@ def build_tools(settings: Settings):
         return response.json()
 
     @tool(args_schema=BookingCancelRequest)
-    def cancel_booking_tool(bookingId: str, userId: str | None = None) -> dict[str, Any]:
+    def cancel_booking_tool(bookingId: str, userId: Optional[str] = None) -> dict[str, Any]:
         """Cancel a booking via the booking API."""
         endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings/{bookingId}"
         headers = {}
@@ -434,7 +425,7 @@ def build_tools(settings: Settings):
         return response.json()
 
     @tool(args_schema=BookingListRequest)
-    def list_bookings_tool(userId: str | None = None, status: str | None = None) -> dict[str, Any]:
+    def list_bookings_tool(userId: Optional[str] = None, status: Optional[str] = None) -> dict[str, Any]:
         """List bookings for a user via the booking API."""
         endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings"
         headers = {}
@@ -465,7 +456,7 @@ def build_tools(settings: Settings):
         return {"bookings": bookings}
 
     @tool
-    def get_weather_forecast_tool(location: str, date: str | None = None) -> str:
+    def get_weather_forecast_tool(location: str, date: Optional[str] = None) -> str:
         """Retrieve weather using WeatherAPI.com."""
         if not settings.weather_api_key:
             return "Weather service is not configured."

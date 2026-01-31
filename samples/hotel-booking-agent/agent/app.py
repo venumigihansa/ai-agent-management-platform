@@ -6,9 +6,7 @@ import logging
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage
-import jwt
 from pydantic import BaseModel
-from typing import Any
 
 from config import Settings
 from graph import build_graph
@@ -23,7 +21,9 @@ agent_graph = build_graph(configs)
 
 class ChatRequest(BaseModel):
     message: str
-    sessionId: str | None = None
+    sessionId: str 
+    userId: str
+    userName: str | None = None
 
 
 class ChatResponse(BaseModel):
@@ -52,62 +52,20 @@ def _wrap_user_message(user_message: str, user_id: str, user_name: str | None) -
     )
 
 
-def _get_bearer_token(request: Request) -> str:
-    auth_header = request.headers.get("authorization", "")
-    if not auth_header.lower().startswith("bearer "):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing or invalid Authorization header.",
-        )
-    token = auth_header.split(" ", 1)[1].strip()
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing bearer token.",
-        )
-    return token
-
-
-def _decode_access_token(token: str) -> dict[str, Any]:
-    return jwt.decode(
-        token,
-        options={
-            "verify_signature": False,
-            "verify_aud": False,
-            "verify_iss": False,
-            "verify_exp": False,
-        },
-    )
-
-
-def _extract_user_from_token(request: Request) -> tuple[str, str | None]:
-    token = _get_bearer_token(request)
-    try:
-        claims = _decode_access_token(token)
-    except jwt.PyJWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid access token.",
-        )
-    user_id = claims.get("sub")
+def _extract_user_from_payload(request: ChatRequest) -> tuple[str, str | None]:
+    user_id = request.userId
     if not user_id:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Access token missing subject.",
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Missing userId in request payload.",
         )
-    user_name = (
-        claims.get("preferred_username")
-        or claims.get("given_name")
-        or claims.get("name")
-        or claims.get("email")
-    )
-    return user_id, user_name
+    return user_id, request.userName
 
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest, http_request: Request) -> ChatResponse:
     session_id = request.sessionId
-    user_id, user_name = _extract_user_from_token(http_request)
+    user_id, user_name = _extract_user_from_payload(request)
     wrapped_message = _wrap_user_message(
         request.message,
         user_id,
