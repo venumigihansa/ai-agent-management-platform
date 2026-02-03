@@ -31,12 +31,6 @@ Required:
 - `WEATHER_API_BASE_URL` (default: `http://api.weatherapi.com/v1`)
 - `HOTEL_API_BASE_URL` (default: `http://localhost:9091`)
 
-**Expose the agent endpoint after deploy**
-Run this inside the WSO2-AMP dev container to expose the agent on `localhost:9090`:
-
-```bash
-kubectl -n dp-default-default-default-ccb66d74 port-forward svc/travel-planner-agent-is 9090:80
-```
 
 **Hotel API**
 - Runs locally on `http://localhost:9091` when started via `uvicorn`.
