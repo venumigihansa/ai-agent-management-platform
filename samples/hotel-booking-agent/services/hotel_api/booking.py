@@ -5,9 +5,9 @@ import logging
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 
 logger = logging.getLogger(__name__)
 
@@ -37,16 +37,6 @@ def _generate_confirmation_number() -> str:
     return f"CONF{uuid.uuid4()}"
 
 
-def _resolve_user_id(request: Request) -> Optional[str]:
-    header_user_id = request.headers.get("x-user-id")
-    if header_user_id:
-        return header_user_id
-    query_user_id = request.query_params.get("userId")
-    if query_user_id:
-        return query_user_id
-    return "guest"
-
-
 def _load_bookings() -> list[dict[str, Any]]:
     if not DATA_PATH.exists():
         DATA_PATH.write_text("[]")
@@ -72,8 +62,8 @@ def _update_booking_record(bookings: list[dict[str, Any]], booking_id: str, upda
 
 
 @router.post("/bookings", status_code=201)
-def create_booking(payload: dict[str, Any], request: Request):
-    user_id = _resolve_user_id(request)
+def create_booking(payload: dict[str, Any]):
+    user_id = payload.get("userId", "guest")
     pricing: list[dict[str, Any]] = []
 
     booking_id = _generate_booking_id()
@@ -113,8 +103,8 @@ def create_booking(payload: dict[str, Any], request: Request):
 
 
 @router.get("/bookings")
-def get_bookings(request: Request):
-    user_id = _resolve_user_id(request)
+def get_bookings(userId: str):
+    user_id = userId
     try:
         bookings = _load_bookings()
         return [booking for booking in bookings if booking.get("userId") == user_id]
@@ -124,8 +114,8 @@ def get_bookings(request: Request):
 
 
 @router.get("/bookings/{booking_id}")
-def get_booking(booking_id: str, request: Request):
-    user_id = _resolve_user_id(request)
+def get_booking(booking_id: str, userId: str):
+    user_id = userId
     try:
         bookings = _load_bookings()
         booking = next(
@@ -145,8 +135,8 @@ def get_booking(booking_id: str, request: Request):
 
 
 @router.put("/bookings/{booking_id}")
-def update_booking(booking_id: str, payload: dict[str, Any], request: Request):
-    user_id = _resolve_user_id(request)
+def update_booking(booking_id: str, payload: dict[str, Any]):
+    user_id = payload.get("userId", "guest")
     try:
         bookings = _load_bookings()
         booking = next(
@@ -185,8 +175,8 @@ def update_booking(booking_id: str, payload: dict[str, Any], request: Request):
 
 
 @router.delete("/bookings/{booking_id}")
-def cancel_booking(booking_id: str, request: Request):
-    user_id = _resolve_user_id(request)
+def cancel_booking(booking_id: str, userId: str):
+    user_id = userId
     try:
         bookings = _load_bookings()
         booking = next(

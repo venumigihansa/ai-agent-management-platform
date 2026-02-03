@@ -45,6 +45,7 @@ def _wrap_user_message(user_message: str, user_id: str, user_name: str | None) -
     resolved_user_id = user_id
     resolved_user_name = user_name or "Traveler"
     return (
+        f"User ID: {resolved_user_id}\n"
         f"User Name: {resolved_user_name}\n"
         f"User Context (non-hotel identifiers): {resolved_user_name} ({resolved_user_id})\n"
         f"UTC Time now:\n{now}\n\n"

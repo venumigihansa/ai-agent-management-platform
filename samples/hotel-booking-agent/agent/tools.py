@@ -10,7 +10,7 @@ from pinecone import Pinecone
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from config import Settings
 
@@ -42,7 +42,7 @@ class SpecialRequests(BaseModel):
 
 
 class BookingRequest(BaseModel):
-    userId: str = Field(..., description="User ID for the booking.")
+    userId: Optional[str] = Field(None, description="User ID for the booking.")
     hotelId: str = Field(..., description="Hotel ID to book.")
     hotelName: Optional[str] = Field(None, description="Hotel name, if available.")
     rooms: list[RoomConfiguration] = Field(..., description="Room configuration(s) to book.")
@@ -81,6 +81,12 @@ class BookingListRequest(BaseModel):
         None,
         description="Optional booking status filter: CONFIRMED, CANCELLED, or ALL.",
     )
+
+
+class UserProfileRequest(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+    userId: Optional[str] = Field(None, description="User ID for personalization.", alias="user_id")
+    userName: Optional[str] = Field(None, description="User name for personalization.", alias="user_name")
 
 
 def _pinecone_index(settings: Settings):
@@ -138,11 +144,11 @@ def build_tools(settings: Settings):
             return resolved_id if resolved_id else None
         return None
 
-    @tool
-    def get_user_profile_tool(user_id: Optional[str] = None, user_name: Optional[str] = None) -> dict[str, Any]:
+    @tool(args_schema=UserProfileRequest)
+    def get_user_profile_tool(userId: Optional[str] = None, userName: Optional[str] = None) -> dict[str, Any]:
         """Return basic user personalization details from the request."""
-        resolved_user_id = user_id
-        resolved_user_name = user_name
+        resolved_user_id = userId
+        resolved_user_name = userName
         return {
             "userId": resolved_user_id,
             "username": resolved_user_name,
@@ -331,7 +337,7 @@ def build_tools(settings: Settings):
         hotelName: Optional[str] = None,
     ) -> dict[str, Any]:
         """Create a booking via the booking API."""
-        resolved_user_id = userId
+        resolved_user_id = userId or "guest"
         logger.info(
             "create_booking_tool called: user_id=%s hotel_id=%s check_in_date=%s check_out_date=%s number_of_rooms=%s",
             resolved_user_id,
@@ -377,10 +383,8 @@ def build_tools(settings: Settings):
     ) -> dict[str, Any]:
         """Edit an existing booking via the booking API."""
         payload: dict[str, Any] = {"bookingId": bookingId}
-        headers: dict[str, str] = {}
         if userId:
             payload["userId"] = userId
-            headers["x-user-id"] = userId
         if hotelId is not None:
             payload["hotelId"] = hotelId
         if hotelName is not None:
@@ -402,7 +406,7 @@ def build_tools(settings: Settings):
 
         endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings/{bookingId}"
         try:
-            response = requests.put(endpoint, json=payload, headers=headers, timeout=30)
+            response = requests.put(endpoint, json=payload, timeout=30)
             response.raise_for_status()
         except requests.RequestException:
             logger.exception("edit_booking_tool failed calling booking API")
@@ -413,11 +417,9 @@ def build_tools(settings: Settings):
     def cancel_booking_tool(bookingId: str, userId: Optional[str] = None) -> dict[str, Any]:
         """Cancel a booking via the booking API."""
         endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings/{bookingId}"
-        headers = {}
-        if userId:
-            headers["x-user-id"] = userId
         try:
-            response = requests.delete(endpoint, headers=headers, timeout=30)
+            params = {"userId": userId} if userId else None
+            response = requests.delete(endpoint, params=params, timeout=30)
             response.raise_for_status()
         except requests.RequestException:
             logger.exception("cancel_booking_tool failed calling booking API")
@@ -428,11 +430,9 @@ def build_tools(settings: Settings):
     def list_bookings_tool(userId: Optional[str] = None, status: Optional[str] = None) -> dict[str, Any]:
         """List bookings for a user via the booking API."""
         endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings"
-        headers = {}
-        if userId:
-            headers["x-user-id"] = userId
         try:
-            response = requests.get(endpoint, headers=headers, timeout=30)
+            params = {"userId": userId} if userId else None
+            response = requests.get(endpoint, params=params, timeout=30)
             response.raise_for_status()
         except requests.RequestException:
             logger.exception("list_bookings_tool failed calling booking API")
