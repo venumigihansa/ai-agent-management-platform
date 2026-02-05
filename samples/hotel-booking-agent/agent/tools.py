@@ -10,7 +10,7 @@ from pinecone import Pinecone
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 
 from config import Settings
 
@@ -83,12 +83,6 @@ class BookingListRequest(BaseModel):
     )
 
 
-class UserProfileRequest(BaseModel):
-    model_config = ConfigDict(populate_by_name=True)
-    userId: Optional[str] = Field(None, description="User ID for personalization.", alias="user_id")
-    userName: Optional[str] = Field(None, description="User name for personalization.", alias="user_name")
-
-
 def _pinecone_index(settings: Settings):
     pc = Pinecone(api_key=settings.pinecone_api_key)
     return pc.Index(settings.pinecone_index_name, host=settings.pinecone_service_url)
@@ -143,17 +137,6 @@ def build_tools(settings: Settings):
             resolved_id = resolve_payload.get("hotelId")
             return resolved_id if resolved_id else None
         return None
-
-    @tool(args_schema=UserProfileRequest)
-    def get_user_profile_tool(userId: Optional[str] = None, userName: Optional[str] = None) -> dict[str, Any]:
-        """Return basic user personalization details from the request."""
-        resolved_user_id = userId
-        resolved_user_name = userName
-        return {
-            "userId": resolved_user_id,
-            "username": resolved_user_name,
-            "source": "request",
-        }
 
     @tool
     def query_hotel_policy_tool(
@@ -292,7 +275,7 @@ def build_tools(settings: Settings):
         room_count: int,
         hotel_name: Optional[str] = None,
     ) -> dict[str, Any]:
-        """Check availability before recommending a hotel."""
+        """Check availability of a hotel for given dates and guest count"""
         clean_id = (hotel_id or "").strip()
         if clean_id and " " not in clean_id:
             resolved_id = clean_id
@@ -336,7 +319,7 @@ def build_tools(settings: Settings):
         specialRequests: SpecialRequests | None = None,
         hotelName: Optional[str] = None,
     ) -> dict[str, Any]:
-        """Create a booking via the booking API."""
+        """Create a booking via the hotel API."""
         resolved_user_id = userId or "guest"
         logger.info(
             "create_booking_tool called: user_id=%s hotel_id=%s check_in_date=%s check_out_date=%s number_of_rooms=%s",
@@ -381,7 +364,7 @@ def build_tools(settings: Settings):
         primaryGuest: GuestDetails | None = None,
         specialRequests: SpecialRequests | None = None,
     ) -> dict[str, Any]:
-        """Edit an existing booking via the booking API."""
+        """Edit an existing booking via the hotel API."""
         payload: dict[str, Any] = {"bookingId": bookingId}
         if userId:
             payload["userId"] = userId
@@ -415,7 +398,7 @@ def build_tools(settings: Settings):
 
     @tool(args_schema=BookingCancelRequest)
     def cancel_booking_tool(bookingId: str, userId: Optional[str] = None) -> dict[str, Any]:
-        """Cancel a booking via the booking API."""
+        """Cancel a booking via the hotel API."""
         endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings/{bookingId}"
         try:
             params = {"userId": userId} if userId else None
@@ -528,7 +511,6 @@ def build_tools(settings: Settings):
         return {"utcToday": now.isoformat(), "resolved": resolved}
 
     return [
-        get_user_profile_tool,
         query_hotel_policy_tool,
         search_hotels_tool,
         get_hotel_info_tool,

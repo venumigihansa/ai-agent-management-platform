@@ -73,10 +73,11 @@
       "lastName": "Ray"
     },
     "pricing": [],
-    "bookingStatus": "CONFIRMED",
+    "bookingStatus": "CANCELLED",
     "bookingDate": "2026-02-03T06:57:01.419397+00:00",
     "confirmationNumber": "CONF6bcc4f9a-e4f9-49d3-a762-c826057f4083",
-    "specialRequests": null
+    "specialRequests": null,
+    "cancelledAt": "2026-02-03T07:32:08.594344+00:00"
   },
   {
     "bookingId": "BKA1E1EB5A",
@@ -129,10 +130,11 @@
       "nationality": "USA"
     },
     "pricing": [],
-    "bookingStatus": "CONFIRMED",
+    "bookingStatus": "CANCELLED",
     "bookingDate": "2026-02-03T07:08:46.301003+00:00",
     "confirmationNumber": "CONFc5e7067f-680a-4312-8c7b-5442e1da750d",
-    "specialRequests": null
+    "specialRequests": null,
+    "cancelledAt": "2026-02-03T07:33:03.957006+00:00"
   },
   {
     "bookingId": "BK413696F8",
@@ -161,5 +163,34 @@
     "bookingDate": "2026-02-03T07:08:57.553890+00:00",
     "confirmationNumber": "CONF7ffdac78-fc8e-46cc-8295-40f3d6d2433a",
     "specialRequests": null
+  },
+  {
+    "bookingId": "BKD154FC96",
+    "hotelId": "mock-002-tokyo",
+    "hotelName": "The Crimson Tower Tokyo",
+    "rooms": [
+      {
+        "roomId": "mock-002-tokyo_PreferredHotels1_1",
+        "numberOfRooms": 1,
+        "pricePerNight": 184.69
+      }
+    ],
+    "userId": "user_1",
+    "checkInDate": "2026-02-12",
+    "checkOutDate": "2026-02-14",
+    "numberOfGuests": 2,
+    "primaryGuest": {
+      "firstName": "Alex",
+      "lastName": "Alex",
+      "email": "alex@example.com",
+      "phoneNumber": "555-0000",
+      "nationality": null
+    },
+    "pricing": [],
+    "bookingStatus": "CONFIRMED",
+    "bookingDate": "2026-02-05T06:51:13.882136+00:00",
+    "confirmationNumber": "CONF61ee4e52-9434-40c2-9c45-1e4812fb1a28",
+    "specialRequests": null,
+    "updatedAt": "2026-02-05T06:52:50.602512+00:00"
   }
 ]
