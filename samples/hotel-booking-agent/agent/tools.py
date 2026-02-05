@@ -93,7 +93,7 @@ def _embedder() -> OpenAIEmbeddings:
 
 
 def _booking_api_url(path: str) -> str:
-    return f"{settings.booking_api_base_url.rstrip('/')}{path}"
+    return f"{settings.hotel_api_base_url.rstrip('/')}{path}"
 
 
 def _call_hotel_api(
@@ -397,7 +397,7 @@ def create_booking_tool(
         "primary_guest": primary_guest.model_dump(),
         "special_requests": special_requests.model_dump() if special_requests else None,
     }
-    endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings"
+    endpoint = f"{settings.hotel_api_base_url.rstrip('/')}/bookings"
     try:
         response = requests.post(endpoint, json=payload, timeout=30)
         response.raise_for_status()
@@ -468,7 +468,7 @@ def edit_booking_tool(
     if special_requests is not None:
         payload["special_requests"] = special_requests.model_dump()
 
-    endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings/{booking_id}"
+    endpoint = f"{settings.hotel_api_base_url.rstrip('/')}/bookings/{booking_id}"
     try:
         response = requests.put(endpoint, json=payload, timeout=30)
         response.raise_for_status()
@@ -491,7 +491,7 @@ def cancel_booking_tool(booking_id: str, user_id: Optional[str] = None) -> dict[
         dict[str, Any]: Cancellation status/details.
     """
     logger.info("cancel_booking_tool called: booking_id=%s user_id=%s", booking_id, user_id)
-    endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings/{booking_id}"
+    endpoint = f"{settings.hotel_api_base_url.rstrip('/')}/bookings/{booking_id}"
     try:
         params = {"user_id": user_id} if user_id else None
         response = requests.delete(endpoint, params=params, timeout=30)
@@ -515,7 +515,7 @@ def list_bookings_tool(user_id: Optional[str] = None, status: Optional[str] = No
         dict[str, Any]: List of bookings.
     """
     logger.info("list_bookings_tool called: user_id=%s status=%s", user_id, status)
-    endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings"
+    endpoint = f"{settings.hotel_api_base_url.rstrip('/')}/bookings"
     try:
         params = {"user_id": user_id} if user_id else None
         response = requests.get(endpoint, params=params, timeout=30)

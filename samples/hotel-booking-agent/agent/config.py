@@ -17,7 +17,11 @@ class Settings(BaseSettings):
     pinecone_index_name: str = "hotel-policies"
     weather_api_key: str | None = None
     weather_api_base_url: str = "http://api.weatherapi.com/v1"
-    booking_api_base_url: str = "http://localhost:9091"
+    hotel_api_base_url: str = Field(
+        default="http://localhost:9091",
+        description="Base URL for the hotel booking API.",
+        validation_alias="HOTEL_API_BASE_URL",
+    )
     cors_allow_origins: list[str] | str = Field(default_factory=lambda: ["http://localhost:3001"])
     cors_allow_credentials: bool = True
 
