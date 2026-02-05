@@ -50,14 +50,14 @@ def resolve_hotel_id_by_name(name: str, threshold: float = 0.75) -> str | None:
     best_id = None
     best_score = 0.0
     for hotel in hotels:
-        hotel_name = str(hotel.get("hotelName") or hotel.get("name") or "")
+        hotel_name = str(hotel.get("hotel_name") or hotel.get("name") or "")
         candidate = _normalize_name(hotel_name)
         if not candidate:
             continue
         score = SequenceMatcher(None, target, candidate).ratio()
         if score > best_score:
             best_score = score
-            best_id = hotel.get("hotelId")
+            best_id = hotel.get("hotel_id")
     if best_id and best_score >= threshold:
         return str(best_id)
     return None
@@ -66,13 +66,13 @@ def resolve_hotel_id_by_name(name: str, threshold: float = 0.75) -> str | None:
 def _rooms_for_hotel(hotel_id: str) -> list[dict[str, Any]]:
     data = _load_dataset()
     rooms = data.get("rooms") or []
-    return [room for room in rooms if room.get("hotelId") == hotel_id]
+    return [room for room in rooms if room.get("hotel_id") == hotel_id]
 
 
 def _sort_hotels_by_price(items: list[dict[str, Any]], ascending: bool) -> list[dict[str, Any]]:
     return sorted(
         items,
-        key=lambda hotel: hotel.get("lowestPrice", 0),
+        key=lambda hotel: hotel.get("lowest_price", 0),
         reverse=not ascending,
     )
 
@@ -110,7 +110,7 @@ def _apply_filters(
                 str(value)
                 for value in (
                     hotel.get("city"),
-                    hotel.get("hotelName"),
+                    hotel.get("hotel_name"),
                     hotel.get("name"),
                     hotel.get("place_name"),
                     hotel.get("short_place_name"),
@@ -123,7 +123,7 @@ def _apply_filters(
     if min_price is not None or max_price is not None:
         tmp = []
         for h in filtered:
-            price = h.get("lowestPrice", 0)
+            price = h.get("lowest_price", 0)
             if price == 0:
                 tmp.append(h)
                 continue
@@ -190,10 +190,10 @@ def search_hotels(
         return {
             "hotels": [],
             "metadata": {
-                "totalResults": 0,
+                "total_results": 0,
                 "page": page,
-                "pageSize": page_size,
-                "dataSource": "mock",
+                "page_size": page_size,
+                "data_source": "mock",
             },
         }
 
@@ -205,10 +205,10 @@ def search_hotels(
     return {
         "hotels": paginated,
         "metadata": {
-            "totalResults": len(filtered),
+            "total_results": len(filtered),
             "page": page,
-            "pageSize": page_size,
-            "dataSource": "mock",
+            "page_size": page_size,
+            "data_source": "mock",
         },
     }
 
@@ -225,15 +225,15 @@ def get_hotel_details(
         hotel = None
         data = _load_dataset()
         match = next(
-            (item for item in data.get("hotels", []) if item.get("hotelId") == hotel_id),
+            (item for item in data.get("hotels", []) if item.get("hotel_id") == hotel_id),
             None,
         )
         if match:
             hotel = dict(match)
         if not hotel:
             hotel = {
-                "hotelId": hotel_id,
-                "hotelName": "Unknown Hotel",
+                "hotel_id": hotel_id,
+                "hotel_name": "Unknown Hotel",
                 "description": "",
                 "city": "",
                 "country": "",
@@ -241,13 +241,13 @@ def get_hotel_details(
         return {
             "hotel": hotel,
             "rooms": rooms_out,
-            "recentReviews": [],
-            "nearbyAttractions": [],
+            "recent_reviews": [],
+            "nearby_attractions": [],
         }
 
     data = _load_dataset()
     match = next(
-        (item for item in data.get("hotels", []) if item.get("hotelId") == hotel_id),
+        (item for item in data.get("hotels", []) if item.get("hotel_id") == hotel_id),
         None,
     )
     if match:
@@ -255,8 +255,8 @@ def get_hotel_details(
         return {
             "hotel": hotel,
             "rooms": [],
-            "recentReviews": [],
-            "nearbyAttractions": [],
+            "recent_reviews": [],
+            "nearby_attractions": [],
         }
 
     raise HotelNotFoundError("Hotel not found.")
@@ -271,17 +271,17 @@ def _rooms_for_guests(
     requested_rooms = max(int(room_count), 1)
     filtered: list[dict[str, Any]] = []
     for room in rooms:
-        max_occupancy = room.get("maxOccupancy") or 0
+        max_occupancy = room.get("max_occupancy") or 0
         occupancy_int = max(int(max_occupancy), 0)
         if occupancy_int <= 0:
             continue
         required_for_guests = max(1, ceil(guests_int / occupancy_int))
         required_rooms = max(required_for_guests, requested_rooms)
-        available_count = int(room.get("availableCount", 1))
+        available_count = int(room.get("available_count", 1))
         if available_count < required_rooms:
             continue
         room_copy = dict(room)
-        room_copy["requiredRooms"] = required_rooms
+        room_copy["required_rooms"] = required_rooms
         filtered.append(room_copy)
     return filtered
 
@@ -296,50 +296,50 @@ def check_availability(
 ) -> dict[str, Any]:
     rooms_out = _rooms_for_guests(_rooms_for_hotel(hotel_id), guests, room_count)
     return {
-        "hotelId": hotel_id,
-        "checkInDate": check_in_date,
-        "checkOutDate": check_out_date,
-        "availableRooms": rooms_out,
-        "totalAvailable": len(rooms_out),
+        "hotel_id": hotel_id,
+        "check_in_date": check_in_date,
+        "check_out_date": check_out_date,
+        "available_rooms": rooms_out,
+        "total_available": len(rooms_out),
     }
 
 
 def _error_response(message: str, code: str) -> dict[str, Any]:
     return {
         "message": message,
-        "errorCode": code,
+        "error_code": code,
     }
 
 
 @router.get("/hotels/search")
 def search_hotels_route(
     destination: str | None = None,
-    checkInDate: str | None = None,
-    checkOutDate: str | None = None,
+    check_in_date: str | None = None,
+    check_out_date: str | None = None,
     guests: int = 2,
     rooms: int = 1,
-    minPrice: float | None = None,
-    maxPrice: float | None = None,
-    minRating: float | None = None,
-    sortBy: str | None = None,
+    min_price: float | None = None,
+    max_price: float | None = None,
+    min_rating: float | None = None,
+    sort_by: str | None = None,
     page: int = 1,
-    pageSize: int = 10,
+    page_size: int = 10,
 ):
     try:
         return search_hotels(
             None,
             destination=destination,
-            check_in_date=checkInDate,
-            check_out_date=checkOutDate,
+            check_in_date=check_in_date,
+            check_out_date=check_out_date,
             guests=guests,
             rooms=rooms,
-            min_price=minPrice,
-            max_price=maxPrice,
-            min_rating=minRating,
+            min_price=min_price,
+            max_price=max_price,
+            min_rating=min_rating,
             amenities=None,
-            sort_by=sortBy,
+            sort_by=sort_by,
             page=page,
-            page_size=pageSize,
+            page_size=page_size,
         )
     except HotelSearchError:
         logger.exception("search_hotels failed")
@@ -350,7 +350,7 @@ def search_hotels_route(
 def resolve_hotel_id_route(name: str):
     try:
         hotel_id = resolve_hotel_id_by_name(name)
-        return {"hotelId": hotel_id}
+        return {"hotel_id": hotel_id}
     except Exception:
         logger.exception("resolve_hotel_id failed")
         return _error_response("Hotel resolve failed", "HOTEL_RESOLVE_FAILED")
@@ -359,16 +359,16 @@ def resolve_hotel_id_route(name: str):
 @router.get("/hotels/{hotel_id}")
 def get_hotel_details_route(
     hotel_id: str,
-    checkInDate: str | None = None,
-    checkOutDate: str | None = None,
+    check_in_date: str | None = None,
+    check_out_date: str | None = None,
     guests: int = 2,
 ):
     try:
         return get_hotel_details(
             None,
             hotel_id=hotel_id,
-            check_in_date=checkInDate,
-            check_out_date=checkOutDate,
+            check_in_date=check_in_date,
+            check_out_date=check_out_date,
             guests=guests,
         )
     except HotelSearchError:
@@ -379,19 +379,19 @@ def get_hotel_details_route(
 @router.get("/hotels/{hotel_id}/availability")
 def get_hotel_availability_route(
     hotel_id: str,
-    checkInDate: str,
-    checkOutDate: str,
+    check_in_date: str,
+    check_out_date: str,
     guests: int = 2,
-    roomCount: int = 1,
+    room_count: int = 1,
 ):
     try:
         return check_availability(
             None,
             hotel_id=hotel_id,
-            check_in_date=checkInDate,
-            check_out_date=checkOutDate,
+            check_in_date=check_in_date,
+            check_out_date=check_out_date,
             guests=guests,
-            room_count=roomCount,
+            room_count=room_count,
         )
     except HotelSearchError:
         logger.exception("get_hotel_availability failed")

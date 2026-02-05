@@ -69,7 +69,7 @@ python -m uvicorn service:app --host 0.0.0.0 --port 9091
 ```bash
 curl -s http://localhost:9090/chat \
   -H "Content-Type: application/json" \
-  -d '{"message":"Plan a 3-day trip to Tokyo","sessionId":"session_abc123","userId":"user_123","userName":"Traveler"}'
+  -d '{"message":"Plan a 3-day trip to Tokyo","session_id":"session_abc123","user_id":"user_123","user_name":"Traveler"}'
 ```
 
 ## Notes

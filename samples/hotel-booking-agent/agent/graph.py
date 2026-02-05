@@ -5,14 +5,14 @@ from typing import Annotated, TypedDict
 
 from langchain_core.messages import BaseMessage, SystemMessage
 from langchain_openai import ChatOpenAI
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import InMemorySaver
 
 
-from config import Settings
-from tools import build_tools
+from config import settings
+from tools import TOOLS
 
 logger = logging.getLogger(__name__)
 
@@ -23,20 +23,20 @@ Instructions:
 - Match hotels near attractions with user interests when prioritizing hotels.
 - You may plan itineraries with multiple hotels based on user interests and attractions.
 - Include the hotel and things to do for each day in the itinerary.
--  Response should be in markdown format. Include the photos of the hotels if available.
-- Use resolve_relative_dates_tool to resolve phrases like tomorrow, this weekend, next Friday into ISO dates. If ambiguity remains, ask a clarifying question.
-- Do not output raw tool traces, internal reasoning, markdown headings, or code fences."""
+- Response should be in markdown format. Include the photos of the hotels if available.
+- Use the provided tools to search for hotels and availability, answer policy questions, and place, view, edit, or cancel bookings as needed.
+"""
 
 
 class AgentState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
 
 
-def build_graph(configs: Settings):
-    tools = build_tools(configs)
+def build_graph():
+    tools = TOOLS
     llm = ChatOpenAI(
-        model=configs.openai_model,
-        api_key=configs.openai_api_key,
+        model=settings.openai_model,
+        api_key=settings.openai_api_key,
     ).bind_tools(tools)
 
     def agent_node(state: AgentState) -> AgentState:

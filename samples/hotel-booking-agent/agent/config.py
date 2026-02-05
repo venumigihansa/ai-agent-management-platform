@@ -28,3 +28,6 @@ class Settings(BaseSettings):
         if isinstance(self.cors_allow_origins, list):
             return self.cors_allow_origins
         return _split_csv(self.cors_allow_origins, ["http://localhost:3001"])
+
+
+settings = Settings()

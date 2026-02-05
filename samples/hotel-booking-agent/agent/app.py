@@ -8,7 +8,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 
-from config import Settings
 from graph import build_graph
 
 logging.basicConfig(
@@ -16,14 +15,13 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
 
-configs = Settings()
-agent_graph = build_graph(configs)
+agent_graph = build_graph()
 
 class ChatRequest(BaseModel):
     message: str
-    sessionId: str 
-    userId: str
-    userName: str | None = None
+    session_id: str
+    user_id: str
+    user_name: str | None = None
 
 
 class ChatResponse(BaseModel):
@@ -54,18 +52,18 @@ def _wrap_user_message(user_message: str, user_id: str, user_name: str | None) -
 
 
 def _extract_user_from_payload(request: ChatRequest) -> tuple[str, str | None]:
-    user_id = request.userId
+    user_id = request.user_id
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Missing userId in request payload.",
+            detail="Missing user_id in request payload.",
         )
-    return user_id, request.userName
+    return user_id, request.user_name
 
 
 @app.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest, http_request: Request) -> ChatResponse:
-    session_id = request.sessionId
+def chat(request: ChatRequest) -> ChatResponse:
+    session_id = request.session_id
     user_id, user_name = _extract_user_from_payload(request)
     wrapped_message = _wrap_user_message(
         request.message,

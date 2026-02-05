@@ -27,16 +27,16 @@ paths:
                 summary: Simple travel query
                 value:
                   message: "Plan a 5-day trip to Tokyo"
-                  sessionId: "session_abc123"
-                  userId: "user_123"
-                  userName: "Traveler"
+                  session_id: "session_abc123"
+                  user_id: "user_123"
+                  user_name: "Traveler"
               with_session:
                 summary: Continuing conversation
                 value:
                   message: "What about hotels near Shibuya?"
-                  sessionId: "session_abc123"
-                  userId: "user_123"
-                  userName: "Traveler"
+                  session_id: "session_abc123"
+                  user_id: "user_123"
+                  user_name: "Traveler"
       responses:
         '200':
           description: Successfully processed the message and generated a response
@@ -76,8 +76,8 @@ components:
       type: object
       required:
         - message
-        - sessionId
-        - userId
+        - session_id
+        - user_id
       properties:
         message:
           type: string
@@ -85,20 +85,20 @@ components:
           description: The user's chat message or travel query
           example: "Plan a 5-day trip to Tokyo"
           minLength: 1
-        sessionId:
+        session_id:
           anyOf:
             - type: string
             - type: null
           title: SessionId
           description: Session identifier for maintaining conversation context
           example: "session_abc123"
-        userId:
+        user_id:
           type: string
           title: UserId
           description: The user's unique identifier for this chat session
           example: "user_123"
           minLength: 1
-        userName:
+        user_name:
           anyOf:
             - type: string
             - type: null

@@ -20,7 +20,7 @@ router = APIRouter()
 def _error_response(message: str, code: str) -> dict[str, Any]:
     return {
         "message": message,
-        "errorCode": code,
+        "error_code": code,
         "timestamp": _get_current_timestamp(),
     }
 
@@ -55,7 +55,7 @@ def _save_bookings(bookings: list[dict[str, Any]]) -> None:
 
 def _update_booking_record(bookings: list[dict[str, Any]], booking_id: str, updates: dict[str, Any]) -> dict[str, Any] | None:
     for booking in bookings:
-        if booking.get("bookingId") == booking_id:
+        if booking.get("booking_id") == booking_id:
             booking.update(updates)
             return booking
     return None
@@ -63,27 +63,27 @@ def _update_booking_record(bookings: list[dict[str, Any]], booking_id: str, upda
 
 @router.post("/bookings", status_code=201)
 def create_booking(payload: dict[str, Any]):
-    user_id = payload.get("userId", "guest")
+    user_id = payload.get("user_id", "guest")
     pricing: list[dict[str, Any]] = []
 
     booking_id = _generate_booking_id()
     confirmation_number = _generate_confirmation_number()
 
     new_booking = {
-        "bookingId": booking_id,
-        "hotelId": payload.get("hotelId"),
-        "hotelName": payload.get("hotelName"),
+        "booking_id": booking_id,
+        "hotel_id": payload.get("hotel_id"),
+        "hotel_name": payload.get("hotel_name"),
         "rooms": payload.get("rooms"),
-        "userId": user_id,
-        "checkInDate": payload.get("checkInDate"),
-        "checkOutDate": payload.get("checkOutDate"),
-        "numberOfGuests": payload.get("numberOfGuests"),
-        "primaryGuest": payload.get("primaryGuest"),
+        "user_id": user_id,
+        "check_in_date": payload.get("check_in_date"),
+        "check_out_date": payload.get("check_out_date"),
+        "number_of_guests": payload.get("number_of_guests"),
+        "primary_guest": payload.get("primary_guest"),
         "pricing": pricing,
-        "bookingStatus": "CONFIRMED",
-        "bookingDate": _get_current_timestamp(),
-        "confirmationNumber": confirmation_number,
-        "specialRequests": payload.get("specialRequests"),
+        "booking_status": "CONFIRMED",
+        "booking_date": _get_current_timestamp(),
+        "confirmation_number": confirmation_number,
+        "special_requests": payload.get("special_requests"),
     }
 
     try:
@@ -95,34 +95,34 @@ def create_booking(payload: dict[str, Any]):
         return _error_response("Booking persistence failed", "BOOKING_PERSIST_FAILED")
 
     return {
-        "bookingId": booking_id,
-        "confirmationNumber": confirmation_number,
+        "booking_id": booking_id,
+        "confirmation_number": confirmation_number,
         "message": "Booking confirmed successfully",
-        "bookingDetails": new_booking,
+        "booking_details": new_booking,
     }
 
 
 @router.get("/bookings")
-def get_bookings(userId: str):
-    user_id = userId
+def get_bookings(user_id: str):
+    user_id = user_id
     try:
         bookings = _load_bookings()
-        return [booking for booking in bookings if booking.get("userId") == user_id]
+        return [booking for booking in bookings if booking.get("user_id") == user_id]
     except Exception:
         logger.exception("get_bookings: failed to fetch bookings")
         return _error_response("Storage unavailable", "STORAGE_UNAVAILABLE")
 
 
 @router.get("/bookings/{booking_id}")
-def get_booking(booking_id: str, userId: str):
-    user_id = userId
+def get_booking(booking_id: str, user_id: str):
+    user_id = user_id
     try:
         bookings = _load_bookings()
         booking = next(
             (
                 item
                 for item in bookings
-                if item.get("bookingId") == booking_id and item.get("userId") == user_id
+                if item.get("booking_id") == booking_id and item.get("user_id") == user_id
             ),
             None,
         )
@@ -136,14 +136,14 @@ def get_booking(booking_id: str, userId: str):
 
 @router.put("/bookings/{booking_id}")
 def update_booking(booking_id: str, payload: dict[str, Any]):
-    user_id = payload.get("userId", "guest")
+    user_id = payload.get("user_id", "guest")
     try:
         bookings = _load_bookings()
         booking = next(
             (
                 item
                 for item in bookings
-                if item.get("bookingId") == booking_id and item.get("userId") == user_id
+                if item.get("booking_id") == booking_id and item.get("user_id") == user_id
             ),
             None,
         )
@@ -151,15 +151,15 @@ def update_booking(booking_id: str, payload: dict[str, Any]):
             return _error_response("Booking not found", "BOOKING_NOT_FOUND")
 
         updated_fields = {
-            "hotelId": payload.get("hotelId", booking.get("hotelId")),
-            "hotelName": payload.get("hotelName", booking.get("hotelName")),
+            "hotel_id": payload.get("hotel_id", booking.get("hotel_id")),
+            "hotel_name": payload.get("hotel_name", booking.get("hotel_name")),
             "rooms": payload.get("rooms", booking.get("rooms")),
-            "checkInDate": payload.get("checkInDate", booking.get("checkInDate")),
-            "checkOutDate": payload.get("checkOutDate", booking.get("checkOutDate")),
-            "numberOfGuests": payload.get("numberOfGuests", booking.get("numberOfGuests")),
-            "primaryGuest": payload.get("primaryGuest", booking.get("primaryGuest")),
-            "specialRequests": payload.get("specialRequests", booking.get("specialRequests")),
-            "updatedAt": _get_current_timestamp(),
+            "check_in_date": payload.get("check_in_date", booking.get("check_in_date")),
+            "check_out_date": payload.get("check_out_date", booking.get("check_out_date")),
+            "number_of_guests": payload.get("number_of_guests", booking.get("number_of_guests")),
+            "primary_guest": payload.get("primary_guest", booking.get("primary_guest")),
+            "special_requests": payload.get("special_requests", booking.get("special_requests")),
+            "updated_at": _get_current_timestamp(),
         }
         updated_fields["pricing"] = []
 
@@ -167,7 +167,7 @@ def update_booking(booking_id: str, payload: dict[str, Any]):
         _save_bookings(bookings)
         return {
             "message": "Booking updated successfully",
-            "bookingDetails": updated_booking,
+            "booking_details": updated_booking,
         }
     except Exception:
         logger.exception("update_booking: failed to update booking")
@@ -175,15 +175,15 @@ def update_booking(booking_id: str, payload: dict[str, Any]):
 
 
 @router.delete("/bookings/{booking_id}")
-def cancel_booking(booking_id: str, userId: str):
-    user_id = userId
+def cancel_booking(booking_id: str, user_id: str):
+    user_id = user_id
     try:
         bookings = _load_bookings()
         booking = next(
             (
                 item
                 for item in bookings
-                if item.get("bookingId") == booking_id and item.get("userId") == user_id
+                if item.get("booking_id") == booking_id and item.get("user_id") == user_id
             ),
             None,
         )
@@ -194,14 +194,14 @@ def cancel_booking(booking_id: str, userId: str):
             bookings,
             booking_id,
             {
-                "bookingStatus": "CANCELLED",
-                "cancelledAt": _get_current_timestamp(),
+                "booking_status": "CANCELLED",
+                "cancelled_at": _get_current_timestamp(),
             },
         )
         _save_bookings(bookings)
         return {
             "message": "Booking cancelled successfully",
-            "bookingDetails": updated_booking,
+            "booking_details": updated_booking,
         }
     except Exception:
         logger.exception("cancel_booking: failed to cancel booking")

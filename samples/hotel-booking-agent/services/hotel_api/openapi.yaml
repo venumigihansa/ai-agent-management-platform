@@ -29,7 +29,7 @@ paths:
           required: false
           schema:
             type: string
-        - name: userId
+        - name: user_id
           in: query
           required: false
           schema:
@@ -51,7 +51,7 @@ paths:
           required: false
           schema:
             type: string
-        - name: userId
+        - name: user_id
           in: query
           required: false
           schema:
@@ -83,7 +83,7 @@ paths:
           required: false
           schema:
             type: string
-        - name: userId
+        - name: user_id
           in: query
           required: false
           schema:
@@ -108,7 +108,7 @@ paths:
           required: false
           schema:
             type: string
-        - name: userId
+        - name: user_id
           in: query
           required: false
           schema:
@@ -139,7 +139,7 @@ paths:
           required: false
           schema:
             type: string
-        - name: userId
+        - name: user_id
           in: query
           required: false
           schema:
@@ -160,12 +160,12 @@ paths:
           required: false
           schema:
             type: string
-        - name: checkInDate
+        - name: check_in_date
           in: query
           required: false
           schema:
             type: string
-        - name: checkOutDate
+        - name: check_out_date
           in: query
           required: false
           schema:
@@ -182,25 +182,25 @@ paths:
           schema:
             type: integer
             default: 1
-        - name: minPrice
+        - name: min_price
           in: query
           required: false
           schema:
             type: number
             format: float
-        - name: maxPrice
+        - name: max_price
           in: query
           required: false
           schema:
             type: number
             format: float
-        - name: minRating
+        - name: min_rating
           in: query
           required: false
           schema:
             type: number
             format: float
-        - name: sortBy
+        - name: sort_by
           in: query
           required: false
           schema:
@@ -212,7 +212,7 @@ paths:
           schema:
             type: integer
             default: 1
-        - name: pageSize
+        - name: page_size
           in: query
           required: false
           schema:
@@ -242,11 +242,11 @@ paths:
               schema:
                 type: object
                 properties:
-                  hotelId:
+                  hotel_id:
                     type: string
                     nullable: true
                 required:
-                  - hotelId
+                  - hotel_id
   /hotels/{hotel_id}:
     get:
       summary: Get hotel details
@@ -256,12 +256,12 @@ paths:
           required: true
           schema:
             type: string
-        - name: checkInDate
+        - name: check_in_date
           in: query
           required: false
           schema:
             type: string
-        - name: checkOutDate
+        - name: check_out_date
           in: query
           required: false
           schema:
@@ -288,12 +288,12 @@ paths:
           required: true
           schema:
             type: string
-        - name: checkInDate
+        - name: check_in_date
           in: query
           required: true
           schema:
             type: string
-        - name: checkOutDate
+        - name: check_out_date
           in: query
           required: true
           schema:
@@ -304,7 +304,7 @@ paths:
           schema:
             type: integer
             default: 2
-        - name: roomCount
+        - name: room_count
           in: query
           required: false
           schema:
@@ -319,119 +319,132 @@ paths:
                 $ref: "#/components/schemas/AvailabilityResponse"
 components:
   schemas:
+    BookingRoom:
+      type: object
+      properties:
+        room_id:
+          type: string
+        number_of_rooms:
+          type: integer
+        price_per_night:
+          type: number
+          format: float
+      required:
+        - room_id
+        - number_of_rooms
     Booking:
       type: object
       properties:
-        bookingId:
+        booking_id:
           type: string
-        hotelId:
+        hotel_id:
           type: string
-        hotelName:
+        hotel_name:
           type: string
         rooms:
           type: array
           items:
-            type: object
-        userId:
+            $ref: "#/components/schemas/BookingRoom"
+        user_id:
           type: string
-        checkInDate:
+        check_in_date:
           type: string
-        checkOutDate:
+        check_out_date:
           type: string
-        numberOfGuests:
+        number_of_guests:
           type: integer
-        primaryGuest:
+        primary_guest:
           type: object
         pricing:
           type: array
           items:
             type: object
-        bookingStatus:
+        booking_status:
           type: string
-        bookingDate:
+        booking_date:
           type: string
-        confirmationNumber:
+        confirmation_number:
           type: string
-        specialRequests:
+        special_requests:
           type: string
-        updatedAt:
+        updated_at:
           type: string
-        cancelledAt:
+        cancelled_at:
           type: string
     BookingCreateRequest:
       type: object
       properties:
-        hotelId:
+        hotel_id:
           type: string
-        hotelName:
+        hotel_name:
           type: string
         rooms:
           type: array
           items:
-            type: object
-        checkInDate:
+            $ref: "#/components/schemas/BookingRoom"
+        check_in_date:
           type: string
-        checkOutDate:
+        check_out_date:
           type: string
-        numberOfGuests:
+        number_of_guests:
           type: integer
-        primaryGuest:
+        primary_guest:
           type: object
-        specialRequests:
+        special_requests:
           type: string
       required:
-        - hotelId
-        - hotelName
+        - hotel_id
+        - hotel_name
         - rooms
-        - checkInDate
-        - checkOutDate
-        - numberOfGuests
-        - primaryGuest
+        - check_in_date
+        - check_out_date
+        - number_of_guests
+        - primary_guest
     BookingUpdateRequest:
       type: object
       properties:
-        hotelId:
+        hotel_id:
           type: string
-        hotelName:
+        hotel_name:
           type: string
         rooms:
           type: array
           items:
-            type: object
-        checkInDate:
+            $ref: "#/components/schemas/BookingRoom"
+        check_in_date:
           type: string
-        checkOutDate:
+        check_out_date:
           type: string
-        numberOfGuests:
+        number_of_guests:
           type: integer
-        primaryGuest:
+        primary_guest:
           type: object
-        specialRequests:
+        special_requests:
           type: string
     BookingCreateResponse:
       type: object
       properties:
-        bookingId:
+        booking_id:
           type: string
-        confirmationNumber:
+        confirmation_number:
           type: string
         message:
           type: string
-        bookingDetails:
+        booking_details:
           $ref: "#/components/schemas/Booking"
     BookingUpdateResponse:
       type: object
       properties:
         message:
           type: string
-        bookingDetails:
+        booking_details:
           $ref: "#/components/schemas/Booking"
     BookingCancelResponse:
       type: object
       properties:
         message:
           type: string
-        bookingDetails:
+        booking_details:
           $ref: "#/components/schemas/Booking"
     HotelSearchResponse:
       type: object
@@ -443,13 +456,13 @@ components:
         metadata:
           type: object
           properties:
-            totalResults:
+            total_results:
               type: integer
             page:
               type: integer
-            pageSize:
+            page_size:
               type: integer
-            dataSource:
+            data_source:
               type: string
     HotelDetailsResponse:
       type: object
@@ -460,26 +473,26 @@ components:
           type: array
           items:
             type: object
-        recentReviews:
+        recent_reviews:
           type: array
           items:
             type: object
-        nearbyAttractions:
+        nearby_attractions:
           type: array
           items:
             type: object
     AvailabilityResponse:
       type: object
       properties:
-        hotelId:
+        hotel_id:
           type: string
-        checkInDate:
+        check_in_date:
           type: string
-        checkOutDate:
+        check_out_date:
           type: string
-        availableRooms:
+        available_rooms:
           type: array
           items:
             type: object
-        totalAvailable:
+        total_available:
           type: integer
