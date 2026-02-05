@@ -1,62 +1,118 @@
-# Hotel Booking Agent
+# Hotel Booking Agent - Deployment Guide
 
-Minimal Python stack for the travel planner agent.
+## Overview
 
-- **AI Agent**: `samples/hotel-booking-agent/agent/`
-- **Hotel API**: `samples/hotel-booking-agent/services/hotel_api/`
-- **Policy ingest**: `samples/hotel-booking-agent/services/hotel_api/ingest/`
-- **Sample policy PDFs**: `samples/hotel-booking-agent/services/hotel_api/resources/policy_pdfs/`
+The Hotel Booking Agent is an AI-powered assistant that helps users search hotels, check availability, answer policy questions, and create/edit/cancel bookings. It is built with LangGraph and FastAPI.
 
-## Quick Start
+## Prerequisites
 
-### Agent Manager deployment
-Deploy the agent in your Agent Manager environment . The flow below covers the required supporting services:
+Before deploying this agent, ensure you have:
 
-**Agent Manager**
-- Repo URL: `https://github.com/wso2/agent-manager/tree/amp/v0/samples/hotel_booking_agent`
-- Language/runtime: Python 3.11
-- Run command: `python -m uvicorn app:app --host 0.0.0.0 --port 9090`
-- Agent type: Chat API Agent
-- Schema path: `openapi.yaml`
-- Port: `9090`
+### Required API Keys
 
-**Agent environment variables**
-Required:
-- `OPENAI_API_KEY`
-- `PINECONE_API_KEY`
-- `PINECONE_SERVICE_URL`
+- **OpenAI API Key**: for model inference
+- **Pinecone API Key**: for policy retrieval
+- **Pinecone Service URL**: for Pinecone host
+- **Pinecone Index Name**: name of your Pinecone index
 
-Optional (with defaults):
-- `OPENAI_MODEL` (default: `gpt-4o-mini`)
-- `OPENAI_EMBEDDING_MODEL` (default: `text-embedding-3-small`)
-- `PINECONE_INDEX_NAME` (default: `hotel-policies`)
-- `WEATHER_API_KEY` (default: unset; weather tool disabled if missing)
-- `WEATHER_API_BASE_URL` (default: `http://api.weatherapi.com/v1`)
-- `HOTEL_API_BASE_URL` (default: `http://localhost:9091`)
-- `CORS_ALLOW_ORIGINS` (default: `http://localhost:3001`)
-- `CORS_ALLOW_CREDENTIALS` (default: `true`)
+### Supporting Service
 
+- **Hotel API**: the hotel API service must be running (locally or deployed). Set `HOTEL_API_BASE_URL` to point to it.
 
-**Hotel API**
-- Runs locally on `http://localhost:9091` when started via `uvicorn`.
-- You can also deploy it to a cloud host; in that case point the agent configuration at the deployed base URL.
+## Deployment Instructions
 
-**Pinecone policies**
-- Create a Pinecone index using your preferred embedding model 
-- Set the Pinecone and embedding configurations when deploying or locally running the hotel api 
-- Run the ingest to populate the index.
+### Step 1: Access Agent Manager Platform
 
-### Local services (Agent + Hotel API)
-#### 1) Start the agent (local)
-```bash
-cd samples/hotel-booking-agent/agent
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python -m uvicorn app:app --host 0.0.0.0 --port 9090
+1. Navigate to the **Default** project
+2. Click **"Add Agent"**
+3. Select **Platform-Hosted Agent** Card
+
+### Step 2: Configure Agent Details
+
+Fill in the agent creation form with these values:
+
+| Field                 | Value                                                   |
+| --------------------- | ------------------------------------------------------- |
+| **Display Name**      | `Hotel Booking Agent`                                   |
+| **Description**       | `AI-powered hotel booking assistant`                    |
+| **GitHub Repository** | `https://github.com/wso2/ai-agent-management-platform`  |
+| **Branch**            | `main`                                                  |
+| **App Path**          | `samples/hotel-booking-agent/agent`                     |
+| **Language**          | `Python`                                                |
+| **Language Version**  | `3.11`                                                  |
+| **Start Command**     | `python -m uvicorn app:app --host 0.0.0.0 --port 9090`   |
+| **Port**              | `9090`                                                  |
+| **OpenAPI Spec Path** | `/openapi.yaml`                                         |
+
+### Step 3: Select Agent Interface
+
+- Choose **"Custom API Agent"** as the agent interface type
+
+### Step 4: Configure Environment Variables
+
+Add the following environment variables in the create form:
+
+```env
+OPENAI_API_KEY=<your-openai-api-key>
+PINECONE_API_KEY=<your-pinecone-api-key>
+PINECONE_SERVICE_URL=<your-pinecone-service-url>
+PINECONE_INDEX_NAME=<your-pinecone-index-name>
+HOTEL_API_BASE_URL=<your-hotel-api-base-url>
 ```
 
-#### 2) Start the Hotel API (local)
+Optional (with defaults):
+
+```env
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+WEATHER_API_KEY=
+WEATHER_API_BASE_URL=http://api.weatherapi.com/v1
+```
+
+### Step 5: Deploy the Agent
+
+1. Review all configuration details
+2. Click **"Deploy"**
+3. Wait for the build to complete
+
+## Testing Your Agent
+
+### Step 1: Navigate to Chat Interface
+
+Click on the **"Try It"** section on the left navigation.
+
+### Step 2: Test Sample Interactions
+
+Try these sample questions in the chat interface:
+
+**Hotel Search:**
+
+```text
+Find hotels in Tokyo for Feb 7 to Feb 8, 2026 for 1 guest.
+```
+
+**Availability:**
+
+```text
+Check availability for Brooklyn Heights Loft Hotel from Feb 7 to Feb 8, 2026 for 1 guest and 1 room.
+```
+
+**Booking:**
+
+```text
+Book 1 room at Brooklyn Heights Loft Hotel from Feb 7 to Feb 8, 2026 for 1 guest. Guest: Alex Doe, alex@example.com, +1-555-0100.
+```
+
+### Step 3: Observe Traces (Optional)
+
+1. Click on the **"Observability"** tab on left navigation and select **Traces**
+2. View traces
+
+## Hotel API (Required Supporting Service)
+
+The Hotel API must be running locally or deployed, and the agent must point to it via `HOTEL_API_BASE_URL`.
+
+### Local Run (Hotel API)
 ```bash
 cd samples/hotel-booking-agent/services/hotel_api
 python -m venv .venv
@@ -65,12 +121,15 @@ pip install -r requirements.txt
 python -m uvicorn service:app --host 0.0.0.0 --port 9091
 ```
 
-### Sample chat request
-```bash
-curl -s http://localhost:9090/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message":"Plan a 3-day trip to Tokyo","session_id":"session_abc123","user_id":"user_123","user_name":"Traveler"}'
+### Deploy Hotel API
+Deploy the hotel API as a separate service, then set:
+```env
+HOTEL_API_BASE_URL=<deployed-hotel-api-base-url>
 ```
 
-## Notes
-- The agent serves chat at `http://localhost:9090/chat`.
+### Pinecone Policy Ingestion (Optional)
+- Create your own Pinecone index using your API key.
+- Provide `PINECONE_API_KEY`, `PINECONE_SERVICE_URL`, and `PINECONE_INDEX_NAME` to the Hotel API deployment.
+- If Pinecone settings are missing, ingestion is skipped and the Hotel API still runs.
+- If the index exists and is empty, ingestion runs; if it already has vectors, ingestion is skipped.
+- Policy PDFs live in `samples/hotel-booking-agent/services/hotel_api/resources/policy_pdfs/`.
