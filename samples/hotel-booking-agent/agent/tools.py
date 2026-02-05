@@ -145,6 +145,12 @@ def build_tools(settings: Settings):
         hotel_name: Optional[str],
     ) -> str:
         """Retrieve hotel policy details from Pinecone."""
+        logger.info(
+            "query_hotel_policy_tool called: hotel_id=%s hotel_name=%s question=%s",
+            hotel_id,
+            hotel_name,
+            question,
+        )
         clean_id = (hotel_id or "").strip()
         if clean_id and " " not in clean_id:
             resolved_id = clean_id
@@ -365,6 +371,12 @@ def build_tools(settings: Settings):
         specialRequests: SpecialRequests | None = None,
     ) -> dict[str, Any]:
         """Edit an existing booking via the hotel API."""
+        logger.info(
+            "edit_booking_tool called: booking_id=%s user_id=%s hotel_id=%s",
+            bookingId,
+            userId,
+            hotelId,
+        )
         payload: dict[str, Any] = {"bookingId": bookingId}
         if userId:
             payload["userId"] = userId
@@ -399,6 +411,7 @@ def build_tools(settings: Settings):
     @tool(args_schema=BookingCancelRequest)
     def cancel_booking_tool(bookingId: str, userId: Optional[str] = None) -> dict[str, Any]:
         """Cancel a booking via the hotel API."""
+        logger.info("cancel_booking_tool called: booking_id=%s user_id=%s", bookingId, userId)
         endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings/{bookingId}"
         try:
             params = {"userId": userId} if userId else None
@@ -412,6 +425,7 @@ def build_tools(settings: Settings):
     @tool(args_schema=BookingListRequest)
     def list_bookings_tool(userId: Optional[str] = None, status: Optional[str] = None) -> dict[str, Any]:
         """List bookings for a user via the booking API."""
+        logger.info("list_bookings_tool called: user_id=%s status=%s", userId, status)
         endpoint = f"{settings.booking_api_base_url.rstrip('/')}/bookings"
         try:
             params = {"userId": userId} if userId else None
@@ -458,6 +472,7 @@ def build_tools(settings: Settings):
     @tool
     def resolve_relative_dates_tool(text: str) -> dict[str, Any]:
         """Resolve relative date phrases (UTC) into ISO dates."""
+        logger.info("resolve_relative_dates_tool called: text=%s", text)
         now = datetime.now(timezone.utc).date()
         lowered = text.lower()
         resolved: list[dict[str, Any]] = []

@@ -25,11 +25,16 @@ Required:
 - `OPENAI_API_KEY`
 - `PINECONE_API_KEY`
 - `PINECONE_SERVICE_URL`
-- `OPENAI_MODEL` 
-- `OPENAI_EMBEDDING_MODEL` 
-- `WEATHER_API_KEY`
+
+Optional (with defaults):
+- `OPENAI_MODEL` (default: `gpt-4o-mini`)
+- `OPENAI_EMBEDDING_MODEL` (default: `text-embedding-3-small`)
+- `PINECONE_INDEX_NAME` (default: `hotel-policies`)
+- `WEATHER_API_KEY` (default: unset; weather tool disabled if missing)
 - `WEATHER_API_BASE_URL` (default: `http://api.weatherapi.com/v1`)
 - `HOTEL_API_BASE_URL` (default: `http://localhost:9091`)
+- `CORS_ALLOW_ORIGINS` (default: `http://localhost:3001`)
+- `CORS_ALLOW_CREDENTIALS` (default: `true`)
 
 
 **Hotel API**
@@ -37,7 +42,7 @@ Required:
 - You can also deploy it to a cloud host; in that case point the agent configuration at the deployed base URL.
 
 **Pinecone policies**
-- Create a Pinecone index using your preferred embedding model.
+- Create a Pinecone index using your preferred embedding model 
 - Set the Pinecone and embedding configurations when deploying or locally running the hotel api 
 - Run the ingest to populate the index.
 

@@ -24,6 +24,7 @@ Instructions:
 - You may plan itineraries with multiple hotels based on user interests and attractions.
 - Include the hotel and things to do for each day in the itinerary.
 -  Response should be in markdown format. Include the photos of the hotels if available.
+- Use resolve_relative_dates_tool to resolve phrases like tomorrow, this weekend, next Friday into ISO dates. If ambiguity remains, ask a clarifying question.
 - Do not output raw tool traces, internal reasoning, markdown headings, or code fences."""
 
 

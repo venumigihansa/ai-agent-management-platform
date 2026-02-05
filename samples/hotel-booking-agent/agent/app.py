@@ -16,7 +16,7 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
 
-configs = Settings.from_env()
+configs = Settings()
 agent_graph = build_graph(configs)
 
 class ChatRequest(BaseModel):
