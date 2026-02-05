@@ -25,6 +25,7 @@ Instructions:
 - Include the hotel and things to do for each day in the itinerary.
 - Response should be in markdown format. Include the photos of the hotels if available.
 - Use the provided tools to search for hotels and availability, answer policy questions, and place, view, edit, or cancel bookings as needed.
+- Present only information explicitly returned by tool outputs or provided by the user. If something isn't available, say so and offer to look it up.
 """
 
 

@@ -162,7 +162,6 @@ def _apply_filters(
 
 
 def search_hotels(
-    api_key: str | None,
     destination: str | None = None,
     check_in_date: str | None = None,
     check_out_date: str | None = None,
@@ -214,7 +213,6 @@ def search_hotels(
 
 
 def get_hotel_details(
-    api_key: str | None,
     hotel_id: str,
     check_in_date: str | None = None,
     check_out_date: str | None = None,
@@ -287,16 +285,21 @@ def _rooms_for_guests(
 
 
 def check_availability(
-    api_key: str | None,
     hotel_id: str,
     check_in_date: str,
     check_out_date: str,
     guests: int = 2,
     room_count: int = 1,
 ) -> dict[str, Any]:
+    data = _load_dataset()
+    match = next(
+        (item for item in data.get("hotels", []) if item.get("hotel_id") == hotel_id),
+        None,
+    )
+    hotel_name = str(match.get("hotel_name") or match.get("name") or "") if match else ""
     rooms_out = _rooms_for_guests(_rooms_for_hotel(hotel_id), guests, room_count)
     return {
-        "hotel_id": hotel_id,
+        "hotel_name": hotel_name,
         "check_in_date": check_in_date,
         "check_out_date": check_out_date,
         "available_rooms": rooms_out,
@@ -327,7 +330,6 @@ def search_hotels_route(
 ):
     try:
         return search_hotels(
-            None,
             destination=destination,
             check_in_date=check_in_date,
             check_out_date=check_out_date,
@@ -365,7 +367,6 @@ def get_hotel_details_route(
 ):
     try:
         return get_hotel_details(
-            None,
             hotel_id=hotel_id,
             check_in_date=check_in_date,
             check_out_date=check_out_date,
@@ -386,7 +387,6 @@ def get_hotel_availability_route(
 ):
     try:
         return check_availability(
-            None,
             hotel_id=hotel_id,
             check_in_date=check_in_date,
             check_out_date=check_out_date,

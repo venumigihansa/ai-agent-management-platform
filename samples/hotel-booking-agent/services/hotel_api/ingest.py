@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 
 import logging
-from typing import Any
 
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
@@ -35,7 +34,6 @@ class PolicyIngestion:
             pinecone_api_key=os.getenv("PINECONE_API_KEY"),
             pinecone_host=os.getenv("PINECONE_SERVICE_URL"),
         )
-
 
     def ingest_all_policies(self, policies_dir: str | Path) -> None:
         policies_root = Path(policies_dir)

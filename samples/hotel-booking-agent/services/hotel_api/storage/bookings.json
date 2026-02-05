@@ -194,5 +194,61 @@
     "confirmation_number": "CONF61ee4e52-9434-40c2-9c45-1e4812fb1a28",
     "special_requests": null,
     "updated_at": "2026-02-05T06:52:50.602512+00:00"
+  },
+  {
+    "booking_id": "BK70CFB287",
+    "hotel_id": "mock-013-newyork",
+    "hotel_name": "Brooklyn Heights Loft Hotel",
+    "rooms": [
+      {
+        "room_id": "mock-013-newyork_Expedia_1",
+        "number_of_rooms": 1,
+        "price_per_night": 244.04
+      }
+    ],
+    "user_id": "u1",
+    "check_in_date": "2026-02-07",
+    "check_out_date": "2026-02-08",
+    "number_of_guests": 1,
+    "primary_guest": {
+      "first_name": "Alex",
+      "last_name": "Doe",
+      "email": "alex@example.com",
+      "phone_number": "+1-555-0100",
+      "nationality": null
+    },
+    "pricing": [],
+    "booking_status": "CONFIRMED",
+    "booking_date": "2026-02-05T18:31:31.514949+00:00",
+    "confirmation_number": "CONF45b0e193-f0d0-4cfc-b9e8-6d683fbb88e0",
+    "special_requests": null
+  },
+  {
+    "booking_id": "BK7E6BE214",
+    "hotel_id": "mock-013-newyork",
+    "hotel_name": "Brooklyn Heights Loft Hotel",
+    "rooms": [
+      {
+        "room_id": "mock-013-newyork_Expedia_1",
+        "number_of_rooms": 1,
+        "price_per_night": 244.04
+      }
+    ],
+    "user_id": "u1",
+    "check_in_date": "2026-02-07",
+    "check_out_date": "2026-02-08",
+    "number_of_guests": 1,
+    "primary_guest": {
+      "first_name": "Alex",
+      "last_name": "Doe",
+      "email": "alex@example.com",
+      "phone_number": "+1-555-0100",
+      "nationality": null
+    },
+    "pricing": [],
+    "booking_status": "CONFIRMED",
+    "booking_date": "2026-02-05T18:39:57.664473+00:00",
+    "confirmation_number": "CONFd7a7c7ed-dc11-4475-9467-d14d0ac1c3c4",
+    "special_requests": null
   }
 ]

@@ -104,7 +104,6 @@ def create_booking(payload: dict[str, Any]):
 
 @router.get("/bookings")
 def get_bookings(user_id: str):
-    user_id = user_id
     try:
         bookings = _load_bookings()
         return [booking for booking in bookings if booking.get("user_id") == user_id]
@@ -115,7 +114,6 @@ def get_bookings(user_id: str):
 
 @router.get("/bookings/{booking_id}")
 def get_booking(booking_id: str, user_id: str):
-    user_id = user_id
     try:
         bookings = _load_bookings()
         booking = next(
@@ -176,7 +174,6 @@ def update_booking(booking_id: str, payload: dict[str, Any]):
 
 @router.delete("/bookings/{booking_id}")
 def cancel_booking(booking_id: str, user_id: str):
-    user_id = user_id
     try:
         bookings = _load_bookings()
         booking = next(
